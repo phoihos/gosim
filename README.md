@@ -16,13 +16,13 @@ The main code is :
 package main
 
 import (
-    "log"
+	"log"
 
 	"github.com/phoihos/gosim/database"
 	"github.com/phoihos/gosim/database/mssql"
 	"github.com/phoihos/gosim/server"
 
-	_ "hello"
+	_ "handler"
 )
 
 func main() {
@@ -31,7 +31,7 @@ func main() {
 	dbOpt := &database.SetupOption{Alias: "example", Host: "127.0.0.1", Port: "1433", Database: "exam", User: "user", Password: "password"}
 	dbConf := mssql.NewConfiguration(dbOpt)
 	if err := database.OpenConnection(dbConf); err != nil {
-		log.Fatal(err)
+		log.Print(err)
 	}
 
 	conf := &server.Configuration{Port: "8080", ShutdownPath: "/shutdown"}
@@ -39,9 +39,9 @@ func main() {
 }
 ```
 
-The hello handler code is :
+The handler code is :
 ```go
-package hello
+package handler
 
 import (
 	"encoding/json"
@@ -53,27 +53,37 @@ import (
 )
 
 func handle(w http.ResponseWriter, r *http.Request) {
-	io.WriteString(w, "Hello World")
+	switch r.URL.Path {
+	case "/":
+		io.WriteString(w, "Hello World")
+	default:
+		http.NotFound(w, r)
+	}
 }
 
 func handleProducts(w http.ResponseWriter, r *http.Request) {
-    db := database.GetConnection("example")
+	db := database.GetConnection("example")
+	if db == nil {
+		io.WriteString(w, "No database connection exists")
+		return
+	}
 
-    type product struct {
-        Code string
-        Price uint
-    }
-    var results []product
-    db.Raw("select * form products").Scan(&results)
-    
-    b, _ := json.Marshal(results)
+	type product struct {
+		Code  string
+		Price uint
+	}
+
+	var results []product
+	db.Raw("select * form products").Scan(&results)
+
+	b, _ := json.Marshal(results)
 	jsonText := string(b)
 	io.WriteString(w, jsonText)
 }
 
 func init() {
-    route.MapRouteFunc("/", handle)
-    route.MapRouteFunc("/products", handleProducts)
+	route.MapRouteFunc("/", handle).
+		MapRouteFunc("/products", handleProducts)
 }
 ```
 
