@@ -3,7 +3,7 @@ package mssql
 import (
 	"fmt"
 
-	"gosim/database"
+	"github.com/phoihos/gosim/database"
 )
 
 type config struct {
