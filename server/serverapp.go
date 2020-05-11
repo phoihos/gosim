@@ -11,7 +11,7 @@ import (
 	"syscall"
 	"time"
 
-	"gosim/route"
+	"github.com/phoihos/gosim/route"
 )
 
 type shutdownHandler struct {
