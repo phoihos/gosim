@@ -46,7 +46,7 @@ func MapRouteFunc(pattern string, handler func(http.ResponseWriter, *http.Reques
 	return builder.MapRouteFunc(pattern, handler)
 }
 
-// BuildServeMux buil http.ServeMux instance
+// BuildServeMux build http.ServeMux instance
 func BuildServeMux() *http.ServeMux {
 	return builder.BuildServeMux()
 }

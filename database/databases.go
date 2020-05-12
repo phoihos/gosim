@@ -9,8 +9,8 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/mssql"
 )
 
-// A SetupOption is used to generate database Configuration
-type SetupOption struct {
+// Configuration is used to open database
+type Configuration struct {
 	Alias    string
 	Host     string
 	Port     string
@@ -19,13 +19,18 @@ type SetupOption struct {
 	Password string
 }
 
-// A Configuration is used to open database
-type Configuration interface {
-	GetAlias() string
-	BuildConnString() (string, string) // engineName, connectionString
-}
+// NamingStrategy represents naming strategies
+type NamingStrategy gorm.NamingStrategy
+
+// BuildConnString is function to build connection string
+var BuildConnString func(config *Configuration) (alias string, connString string)
 
 var pool map[string]*gorm.DB
+
+// SetOrmNamingStrategy set DB/Table/Column namer function for orm
+func SetOrmNamingStrategy(ns *NamingStrategy) {
+	gorm.AddNamingStrategy(&gorm.NamingStrategy{DB: ns.DB, Table: ns.Table, Column: ns.Column})
+}
 
 // Close all database connections
 func Close() {
@@ -34,9 +39,13 @@ func Close() {
 	}
 }
 
-// OpenConnection open a database connection
-func OpenConnection(config Configuration) error {
-	dbConnection, err := gorm.Open(config.BuildConnString())
+// OpenConnection open a database connection with configuration
+func OpenConnection(config *Configuration) error {
+	if BuildConnString == nil {
+		return errors.New("Can't found imported database driver")
+	}
+
+	dbConnection, err := gorm.Open(BuildConnString(config))
 	if err != nil {
 		return err
 	}
@@ -45,7 +54,7 @@ func OpenConnection(config Configuration) error {
 	dbConnection.DB().SetMaxOpenConns(100)
 	dbConnection.DB().SetConnMaxLifetime(time.Hour)
 
-	pool[strings.ToLower(config.GetAlias())] = dbConnection
+	pool[strings.ToLower(config.Alias)] = dbConnection
 
 	return nil
 }
@@ -56,8 +65,5 @@ func GetConnection(alias string) *gorm.DB {
 }
 
 func init() {
-	// Change "Column Naming Rule"
-	gorm.TheNamingStrategy.Column = func(name string) string { return name }
-
 	pool = make(map[string]*gorm.DB)
 }
