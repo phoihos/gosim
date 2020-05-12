@@ -6,8 +6,6 @@ import (
 	"time"
 
 	"github.com/jinzhu/gorm"
-	// Importing mssql driver package only for gorm
-	_ "github.com/jinzhu/gorm/dialects/mssql"
 )
 
 // Configuration is used to open database
