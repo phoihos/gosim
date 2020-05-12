@@ -41,7 +41,7 @@ func Close() {
 // OpenConnection open a database connection with configuration
 func OpenConnection(config *Configuration) error {
 	if BuildConnString == nil {
-		return errors.New("Can't found imported database driver")
+		return errors.New("Can't found database driver (forgotten import?)")
 	}
 
 	dbConnection, err := gorm.Open(BuildConnString(config))
