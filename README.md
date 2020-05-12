@@ -19,7 +19,7 @@ import (
 	"log"
 
 	"github.com/phoihos/gosim/database"
-	"github.com/phoihos/gosim/database/mssql"
+	_ "github.com/phoihos/gosim/database/mssql"
 	"github.com/phoihos/gosim/server"
 
 	_ "handler"
@@ -28,8 +28,10 @@ import (
 func main() {
 	defer database.Close()
 
-	dbOpt := &database.SetupOption{Alias: "example", Host: "127.0.0.1", Port: "1433", Database: "exam", User: "user", Password: "password"}
-	dbConf := mssql.NewConfiguration(dbOpt)
+	// Change orm naming rule if you want to change
+	// database.SetOrmNamingStrategy(...)
+
+	dbConf := &database.Configuration{Alias: "example", Host: "127.0.0.1", Port: "1433", Database: "exam", User: "user", Password: "password"}
 	if err := database.OpenConnection(dbConf); err != nil {
 		log.Print(err)
 	}
