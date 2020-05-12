@@ -2,10 +2,13 @@
 
 This Go package is a simple webserver framework.
 - Depends on [jinzhu/gorm](https://github.com/jinzhu/gorm) package.
+- You can learn about GORM in [https://gorm.io](https://gorm.io).
 
 ## Importing
 
-`import github.com/phoihos/gosim`
+	import "github.com/phoihos/gosim/database"
+	import _ "github.com/phoihos/gosim/database/postgres"
+	import "github.com/phoihos/gosim/server"
 
 ## Usage
 
