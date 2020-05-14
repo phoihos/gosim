@@ -7,8 +7,8 @@ This Go package is a simple webserver framework.
 ## Installation
 
 ```shell
-$ go get -u github.com/phoihos/gosim/server
-$ go get -u github.com/phoihos/gosim/database/postgres # You can change db driver to mysql or mssql
+go get -u github.com/phoihos/gosim/server
+go get -u github.com/phoihos/gosim/database/postgres # You can change db driver to mysql or mssql
 ```
 
 ## Usage
@@ -86,9 +86,10 @@ func handleProducts(w http.ResponseWriter, r *http.Request) {
 	var results []product
 	db.Raw("select * form products").Scan(&results)
 
-	b, _ := json.Marshal(results)
-	jsonText := string(b)
-	io.WriteString(w, jsonText)
+	js, _ := json.Marshal(results)
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(js)
 }
 
 func init() {
